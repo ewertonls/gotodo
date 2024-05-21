@@ -1,0 +1,60 @@
+{{ define "TodoList" }}
+<style>
+.fade-me-out.htmx-swapping {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+</style>
+<ul>
+{{ range . }}
+    {{ template "TodoComponent" . }}
+{{ end }}
+</ul>
+
+{{ end }}
+
+{{ define "TodoComponent" }}
+<li
+    id="todo-item-{{.ID}}"
+    hx-target="this"
+    hx-swap="outerHTML"
+    class="flex mx-2 my-2 fade-me-out transition-colors bg-base-200 hover:bg-base-300 rounded-2xl p-2">
+    <div hx-put="/api/todos/toggleCompleted/{{.ID}}/{{not .Completed}}"
+        class="tooltip form-control mx-3 my-1"
+        data-tip="Mark as {{ if .Completed }}{{"todo"}}{{else}}{{"done"}}{{end}}"
+        style="align-self: top;"
+    >
+        <label class="label cursor-pointer">
+            <input type="checkbox"
+                {{if .Completed}} {{"checked"}} {{end}}
+                class="checkbox checkbox-primary">
+        </label>
+    </div>
+    <div class="flex flex-col justify-center w-full">
+        <h3 class="text-xl font-medium">
+            <span class="{{if .Completed}}{{"line-through"}}{{end}}">
+                {{ .Title }}
+            </span>
+        </h3>
+        {{ if .Description }}
+        <p class="text-md font-light">
+            <span class="{{if .Completed}}{{"line-through"}}{{end}}">
+                {{ .Description }}
+            </span>
+        </p>
+        {{ end }}
+    </div>
+    <div class="tooltip" data-tip="Delete todo">
+        <button hx-delete="/api/todos/{{.ID}}"
+            hx-swap="outerHTML swap:0.4s"
+            class="btn btn-circle error"
+            style="color: oklch(var(--s));"
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+        </button>
+    </div>
+</li>
+{{ end }}
+
